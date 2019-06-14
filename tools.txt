@@ -1,0 +1,8 @@
+https://github.com/lanjelot/patator.git
+https://github.com/galkan/crowbar.git
+https://github.com/koboi137/john/blob/master/ssh2john.py
+https://github.com/OJ/gobuster
+https://github.com/rebootuser/LinEnum.git
+https://github.com/sleventyeleven/linuxprivchecker.git
+https://github.com/rasta-mouse/Watson
+https://github.com/PowerShellMafia/PowerSploit.git
