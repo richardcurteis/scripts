@@ -11,24 +11,35 @@ function clone() {
 }
 
 function pull() {
-	cd /opt
 	for D in `find . -type d`
 	do
 		cd $D
 		if [ -d .git ]; then
 			git pull
-		fi 
+		fi
 	done
 }
 
-cd /opt
-if [ $2 -eq "clone"]
-then
-	clone
+function abort() {
+	echo "Usage: ./update.sh tools.txt clone || pull"
+	echo "Valid arguments are 'pull' or 'clone'"
+	exit 1
+}
 
-elif [ $2 -eq "pull"]
+if [ "$2" == "clone" ]
 then
+	if [ -f $1 ]
+	then
+		cd /opt
+		clone
+	else
+		abort
+fi
+
+elif [ "$2" == "pull" ]
+then
+	cd /opt
 	pull
 else
-	echo "Valid arguments are 'pull' or 'clone'"
+	abort
 fi
