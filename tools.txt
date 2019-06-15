@@ -15,3 +15,4 @@ https://github.com/byt3bl33d3r/SILENTTRINITY.git
 https://github.com/EmpireProject/Empire.git
 https://github.com/samratashok/nishang.git
 https://github.com/trustedsec/unicorn.git
+https://github.com/danielmiessler/SecLists.git
