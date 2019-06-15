@@ -11,13 +11,18 @@ function clone() {
 }
 
 function pull() {
-	for D in `find . -type d`
+	for dir in `ls`
 	do
-		cd $D
-		if [ -d .git ]; then
-			git pull
+
+		if [ -d $dir ];then
+			cd $dir
+			if [ -d .git ]; then
+				echo "[*] $dir"
+				git pull
+			fi
+			cd ../
 		fi
-	done
+	done	
 }
 
 function abort() {
