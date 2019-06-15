@@ -7,3 +7,8 @@ https://github.com/sleventyeleven/linuxprivchecker.git
 https://github.com/mzet-/linux-exploit-suggester.git
 https://github.com/rasta-mouse/Watson
 https://github.com/PowerShellMafia/PowerSploit.git
+https://github.com/byt3bl33d3r/CrackMapExec.git
+https://github.com/SecWiki/windows-kernel-exploits.git
+https://github.com/bitsadmin/wesng.git
+https://github.com/byt3bl33d3r/CrackMapExec.git
+https://github.com/byt3bl33d3r/SILENTTRINITY.git
