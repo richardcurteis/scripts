@@ -4,14 +4,14 @@ import socket
 import sys
 
 if len(sys.argv) != 2:
-    print "Usage: vrfy.py <user_list> <ip_list>"
+    print "Usage: vrfy.py <ip_list> <user_list>"
 
-for name in open(sys.argv[1]):
-    for ip in open(sys.argv[2]):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connect = s.connect((ip, 25))
+for ip in open(sys.argv[1]):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connect = s.connect((ip, 25))
+    for name in open(sys.argv[2]):
         banner = s.recv(1024)
         print banner.send('VRFY ' + name + '\r\n')
         results = s.recv(1024)
         print results
-        s.close()
+    s.close()
