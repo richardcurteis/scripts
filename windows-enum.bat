@@ -74,7 +74,7 @@ reg query" HKCU\Software\SimonTatham\PuTTY\Sessions"
 
 
 echo "--- Search Everywhere for files containing 'password'> *.xml *.ini *.txt ---"
-findstr /si password *.xml *.ini *.txt
+findstr /si password *.xml *.ini *.txt *.xls *.xlsx 
 
 echo "WMI Hotfixes"
 wmic qfe list full
