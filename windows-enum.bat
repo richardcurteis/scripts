@@ -87,7 +87,8 @@ reg query HKCU /f password /t REG_SZ /s >> report.txt
 reg query "HKCU\Software\ORL\WinVNC3\Password" >> report.txt
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" >> report.txt
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" >> report.txt
-reg query" HKCU\Software\SimonTatham\PuTTY\Sessions" >> report.txt
+:: THis needs fixing
+reg query" HKCU\Software\%username%\PuTTY\Sessions" >> report.txt
 echo >> report.txt
 
 echo --- Search Everywhere for files containing 'password'> *.xml *.ini *.txt --- >> report.txt
