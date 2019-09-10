@@ -56,7 +56,7 @@ dir /s Drives.xml
 dir /s DataSources.xml
 
 echo "--- Find autostart files with unquoted servive path --"
-wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\Windows\\" |findstr /i /v """
+wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\\\" |findstr /i /v """
 
 echo "--- Check for AlwaysInstallElevated ---"
 echo "HKCU"
