@@ -26,6 +26,11 @@ echo %userprofile% 2>NUL
 
 
 rem --- System Info --- 
+rem !!! Feed this output directly into WESNG !!!
+rem https://github.com/bitsadmin/wesng
+rem RUN: python wes.py --update
+rem Copy output to systeminfo.txt
+rem RUN: wes.py systeminfo.txt
 systeminfo 
 
 rem --- Installed Software ---
