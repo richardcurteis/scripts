@@ -4,6 +4,10 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 :: https://it-ovid.blogspot.com/2012/02/windows-privilege-escalation.html?m=1
 :: https://github.com/ihack4falafel/OSCP/blob/master/Windows/WinPrivCheck.bat
 
+rem --- Check for PWK Keys --- 
+findstr /si proof *.txt
+findstr /si network-secret *.txt
+
 rem --- Hostname --- 
 hostname  
 
@@ -355,10 +359,15 @@ IF not errorlevel 1 (
 
 rem --- Searching for  files that contain 'password' in filename -- 
 dir /s *password* 
+dir /s *pass* 
 
 
-rem --- Searching for  files that contain 'password' with .txt extension --- 
-findstr /si password *.txt 
+rem --- Search Everywhere for files containing 'pass*' --- 
+rem !!! May need to edit this as it will return a LOT of results !!!
+rem --- Formats checked: *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd---
+findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd
+:: Nuclear Option
+:: findstr /si pass* *.*
 
 
 rem --- Search for Interesting XML --- 
@@ -379,10 +388,6 @@ dir /s *pass*
 dir /s *cred*
 dir /s *vnc*
 dir /s *.config
-
-rem --- Search Everywhere for files containing 'password'> *.xml *.ini *.txt --- 
-findstr /si password *.xml *.ini *.txt *.xls *.xlsx  
-
 
 rem --- Find autostart files with unquoted service path --- 
 wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\\\" |findstr /i /v """  
