@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-
+# Helper script to download fresh version of Chisel and build a shrunk binary.
 echo "[!] Deleting previous chisel folder and binaries..."
 /usr/bin/rm -rf /opt/chisel
 /usr/bin/cd /opt
