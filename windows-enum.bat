@@ -8,7 +8,6 @@
 	rem --- Hostname --- 
 	hostname  
 
-
 	rem --- OS Version ---  
 	systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  /C:"System Type"
 
@@ -20,7 +19,6 @@
 	echo %username% 2>NUL
 	whoami 2>NUL
 	echo %userprofile% 2>NUL
-
 
 	rem --- System Info --- 
 	systeminfo 
