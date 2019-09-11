@@ -8,6 +8,11 @@ rem --- Check for PWK Keys ---
 findstr /si proof *.txt
 findstr /si network-secret *.txt
 
+rem --- Username ---
+echo %username% 2>NUL
+whoami 2>NUL
+echo %userprofile% 2>NUL
+
 rem --- Hostname --- 
 hostname  
 
@@ -19,11 +24,20 @@ systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  /C:"System Type"
 rem --- Users --- 
 net users 
 
-rem --- Username ---
-echo %username% 2>NUL
-whoami 2>NUL
-echo %userprofile% 2>NUL
+rem -- List User Accounts ---
+wmic useraccount list
 
+rem --- List Groups ---
+wmic group list
+
+--- Sysaccount List ---
+wmic sysaccount list
+
+rem --- Identify any local system accounts that are enabled ---
+wmic USERACCOUNT WHERE "Disabled=0 AND LocalAccount=1" GET Name
+
+rem -- Password Policy ---
+net group
 
 rem --- System Info --- 
 rem !!! Feed this output directly into WESNG !!!
@@ -36,6 +50,8 @@ systeminfo
 rem --- Installed Software ---
 wmic product get Name, Version
 
+rem --- List Shares ---
+wmic share list
 
 rem --- Firewall State ---  
 netsh firewall show state 
@@ -52,14 +68,20 @@ schtasks /query /fo LIST /v
 rem --- Process and Linked Services --- 
 tasklist /SVC 
 
+rem --- Processes and Linked DLLs ---
+tasklist /m
 
 rem --- Startup Services --- 
 net start 
 
+rem -- Startup List
+wmic startup list full
 
 rem --- Check for Installed Drivers ---- 
 DRIVERQUERY 
 
+rem -- Envrionment Variables + PATH --- 
+wmic environment list
 
 rem --- Check for Installed Patches ---- 
 wmic qfe get Caption,Description,HotFixID,InstalledOn 
