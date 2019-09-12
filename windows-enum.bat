@@ -52,6 +52,13 @@ wmic USERACCOUNT WHERE "Disabled=0 AND LocalAccount=1" GET Name
 rem -- Password Policy ---
 net group
 
+rem ======================================GPO=================================================
+
+rem --- GPO User ---
+gpresult /Scope User /v 
+
+rem --- GPO Computer ---
+gpresult /Scope Computer /v 
 
 rem ====================================Shares================================================
 rem --- List Shares ---
