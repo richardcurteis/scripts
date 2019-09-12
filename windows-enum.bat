@@ -33,6 +33,9 @@ rem Copy output to systeminfo.txt
 rem RUN: wes.py systeminfo.txt
 systeminfo
 
+rem --- AV Installed ---
+wmic /node:localhost /namespace:\\root\SecurityCenter2 path AntiVirusProduct Get DisplayName | findstr /V /B /C:displayName || echo No Antivirus installed
+
 rem =====================================Users and Groups=====================================
 rem --- Users --- 
 net users 
