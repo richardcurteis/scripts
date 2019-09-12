@@ -19,3 +19,10 @@ echo "Starting Nmap Host Discovery..."
 nmap -sn $1 -oN nmap/discover_hosts
 
 # Work in progress...
+# TODO
+nmap
+- TCP/UDP
+dns checks
+zone transfers
+vuln scans
+
