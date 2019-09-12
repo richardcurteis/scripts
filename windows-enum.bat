@@ -78,12 +78,12 @@ dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 rem ======================================PERMISSIONS=========================================
 rem --- Access to SAM and SYSTEM Files ---
 set system_root=echo %SYSTEMROOT%
-%system_root%\repair\SAM
-%system_root%\System32\config\RegBack\SAM
-%system_root%\System32\config\SAM
-%system_root%\repair\system
-%system_root%\System32\config\SYSTEM
-%system_root%\System32\config\RegBack\system
+icacls.exe %system_root%\repair\SAM
+icacls.exe %system_root%\System32\config\RegBack\SAM
+icacls.exe %system_root%\System32\config\SAM
+icacls.exe %system_root%\repair\system
+icacls.exe %system_root%\System32\config\SYSTEM
+icacls.exe %system_root%\System32\config\RegBack\system
 
 rem --- Full Permissions for Everyone or Users on Program Folders? ---
 icacls "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "Everyone"
