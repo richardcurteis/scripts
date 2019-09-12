@@ -4,6 +4,7 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 :: https://it-ovid.blogspot.com/2012/02/windows-privilege-escalation.html?m=1
 :: https://github.com/ihack4falafel/OSCP/blob/master/Windows/WinPrivCheck.bat
 :: https://www.andreafortuna.org/2017/08/09/windows-command-line-cheatsheet-part-2-wmic/
+:: https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
 
 rem ====================================PWK Keys Specific Check===============================
 rem --- Check for PWK Keys --- 
