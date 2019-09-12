@@ -70,7 +70,7 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | f
 rem -- Password Policy ---
 net group
 
-rem --- Credential Manager ---
+rem --- Credential Manager:  List stored credentials ---
 cmdkey /list
 dir C:\Users\username\AppData\Local\Microsoft\Credentials\
 dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
