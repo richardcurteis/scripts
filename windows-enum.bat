@@ -563,7 +563,7 @@ netsh dump
 rem --- SNMP Configurations ---
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 
-rem =========================================Server Checks========================================
+rem =========================================Web Server Checks====================================
 rem --- What’s in inetpub? Any hidden directories? web.config files? ---
 dir /a C:\inetpub\
 dir /s web.config
@@ -576,7 +576,7 @@ type C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\FTPSVC2\u_ex[YYMMDD].log >> server-checks.txt
 
-rem --- XAMPP, Apache, or PHP installed? Any there any XAMPP, Apache, or PHP configuration files?--- 
+rem --- XAMPP, Apache, or PHP installed? Any there any configuration files?--- 
 dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
 
 rem --- Apache Web Logs --- 
