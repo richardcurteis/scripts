@@ -7,8 +7,8 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 
 rem ====================================PWK Keys Specific Check===============================
 rem --- Check for PWK Keys --- 
-findstr /si proof *.txt
-findstr /si network-secret *.txt
+dir /s proof.txt
+dir /s network-secret.txt
 
 rem =====================================OS General===========================================
 rem --- Username ---
