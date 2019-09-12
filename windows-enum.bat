@@ -533,6 +533,7 @@ rem ============================================================================
 rem --- Search Registry for 'password' --- 
 reg query HKLM /f password /t REG_SZ /s 
 reg query HKCU /f password /t REG_SZ /s 
+reg query HKU /f password /t REG_SZ /s
 reg query "HKCU\Software\ORL\WinVNC3\Password" 
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" 
