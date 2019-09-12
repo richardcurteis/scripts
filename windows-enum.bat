@@ -5,10 +5,12 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 :: https://github.com/ihack4falafel/OSCP/blob/master/Windows/WinPrivCheck.bat
 :: https://www.andreafortuna.org/2017/08/09/windows-command-line-cheatsheet-part-2-wmic/
 
+rem ====================================PWK Keys Specific Check===============================
 rem --- Check for PWK Keys --- 
 findstr /si proof *.txt
 findstr /si network-secret *.txt
 
+rem =====================================OS General===========================================
 rem --- Username ---
 echo %username% 2>NUL
 whoami 2>NUL
@@ -17,11 +19,21 @@ echo %userprofile% 2>NUL
 rem --- Hostname --- 
 hostname  
 
-
 rem --- OS Version ---  
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  /C:"System Type"
 
+rem -- Envrionment Variables + PATH --- 
+wmic environment list
 
+rem --- System Info --- 
+rem !!! Feed this output directly into WESNG !!!
+rem https://github.com/bitsadmin/wesng
+rem RUN: python wes.py --update
+rem Copy output to systeminfo.txt
+rem RUN: wes.py systeminfo.txt
+systeminfo
+
+rem =====================================Users and Groups=====================================
 rem --- Users --- 
 net users 
 
@@ -40,31 +52,24 @@ wmic USERACCOUNT WHERE "Disabled=0 AND LocalAccount=1" GET Name
 rem -- Password Policy ---
 net group
 
-rem --- System Info --- 
-rem !!! Feed this output directly into WESNG !!!
-rem https://github.com/bitsadmin/wesng
-rem RUN: python wes.py --update
-rem Copy output to systeminfo.txt
-rem RUN: wes.py systeminfo.txt
-systeminfo 
 
-rem --- Installed Software ---
-wmic product get Name, Version
-
+rem ====================================Shares================================================
 rem --- List Shares ---
 wmic share list
 
-rem --- Firewall State ---  
-netsh firewall show state 
+rem ====================================Firewall===============================================
+rem --- Current Profile --- 
+netsh advfirewall show currentprofile
 
+rem --- All Profiles --- 
+netsh advfirewall show allprofiles
 
-rem --- Firewall Config --- 
-netsh firewall show config 
+rem --- Show All Rules. Be verbose ---
+netsh advfirewall firewall show rule name=all verbose
 
-
+rem ====================================Services, Tasks and Processes==========================
 rem --- Scheduled Tasks --- 
 schtasks /query /fo LIST /v 
-
 
 rem --- Process and Linked Services --- 
 tasklist /SVC 
@@ -75,20 +80,36 @@ tasklist /m
 rem --- Startup Services --- 
 net start 
 
-rem -- Startup List
+rem --- Startup List ---
 wmic startup list full
 
-rem --- Check for Installed Drivers ---- 
-DRIVERQUERY 
+rem --- Service Permissions for Running Services ---
+sc query state= all | find "SERVICE_NAME" > service_list.txt
 
-rem -- Envrionment Variables + PATH --- 
-wmic environment list
+FOR /F "service=2 delims= " %%A in (service_list.txt) DO (
+	echo %%A >> services.txt
+)
 
+FOR /F "service=*" %%B IN (services.txt) DO (
+	sc qc %%B >> service_info.txt
+	accesschk64.exe -accepteula -ucqv %%B >> service_info.txt
+)
+
+del service_list.txt
+del services.txt
+
+rem =========================================Software and Patching===================================
+
+rem --- Installed Software ---
+wmic product get Name, Version
 rem --- Check for Installed Patches ---- 
 wmic qfe get Caption,Description,HotFixID,InstalledOn 
 
 rem WMI Hotfixes 
 wmic qfe list full 
+
+rem --- Check for Installed Drivers ---- 
+DRIVERQUERY 
 
 rem --- Reference Exploits against Patches ---
 rem Reference Below chart to check for false positives.
@@ -384,20 +405,19 @@ IF not errorlevel 1 (
 
 )
 
-
-rem --- Searching for  files that contain 'password' in filename -- 
-dir /s *password* 
+rem ===========================================================================================
+rem --- Wildcard search for  files that contain *pass* in filename -- 
 dir /s *pass* 
 
-
+rem ===========================================================================================
 rem --- Search Everywhere for files containing 'pass*' --- 
 rem !!! May need to edit this as it will return a LOT of results !!!
-rem --- Formats checked: *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd---
-findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd
+rem --- Formats checked: *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg---
+findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg
 :: Nuclear Option
 :: findstr /si pass* *.*
 
-
+rem ===========================================================================================
 rem --- Search for Interesting XML --- 
 dir /s Groups.xml 
 dir /s Services.xml 
@@ -406,28 +426,28 @@ dir /s ScheduledTasks.xml
 dir /s Drives.xml 
 dir /s DataSources.xml 
 
-
+rem ===========================================================================================
 rem --- Clear-text/base64 Passwords ---
 type c:\sysprep.inf
 type c:\sysprep\sysprep.xml
 type %WINDIR%\Panther\Unattend\Unattended.xml
 type %WINDIR%\Panther\Unattended.xml
-dir /s *pass*
 dir /s *cred*
 dir /s *vnc*
 dir /s *.config
 
+rem ===========================================================================================
 rem --- Find autostart files with unquoted service path --- 
 wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\\\" |findstr /i /v """  
 
-
+rem ===========================================================================================
 rem --- Check for AlwaysInstallElevated --- 
 rem *.MSI Install as SYSTEM
 rem This will only work if both registry keys contain "AlwaysInstallElevated" with DWORD values of 1.
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated  
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated 
 
-
+rem ===========================================================================================
 rem --- Search Registry for 'password' --- 
 reg query HKLM /f password /t REG_SZ /s 
 reg query HKCU /f password /t REG_SZ /s 
@@ -437,11 +457,12 @@ reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"
 reg query "HKCU\Software\%username%\PuTTY\Sessions" 
 reg query "HKCU\Software\administrator\PuTTY\Sessions" 
 
-
+rem ===========================================================================================
 rem ---- Networking --- 
 ipconfig /all 
 route print 
 arp -A 
 
+rem ===========================================================================================
 rem --- Active Network Connections ---  
 netstat -ano  
