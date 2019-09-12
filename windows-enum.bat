@@ -411,7 +411,8 @@ dir /s *pass*
 
 rem ===========================================================================================
 rem --- Search Everywhere for files containing 'pass*' --- 
-rem !!! May need to edit this as it will return a LOT of results !!!
+rem !!! May need to edit this as it will return a LOT of results on more complex systems !!!
+rem TODO: Refine to most likely candidates for holding credentials
 rem --- Formats checked: *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg---
 findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg
 :: Nuclear Option
