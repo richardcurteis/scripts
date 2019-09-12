@@ -77,6 +77,9 @@ dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 
 rem ======================================PERMISSIONS=========================================
 rem --- Access to SAM and SYSTEM Files ---
+rem https://superuser.com/questions/322423/explain-the-output-of-icacls-exe-line-by-line-item-by-item
+rem https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls
+rem
 set system_root=echo %SYSTEMROOT%
 icacls.exe %system_root%\repair\SAM
 icacls.exe %system_root%\System32\config\RegBack\SAM
