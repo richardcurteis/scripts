@@ -11,11 +11,6 @@ dir /s proof.txt
 dir /s network-secret.txt
 
 rem =====================================OS General===========================================
-rem --- Username ---
-echo %username% 2>NUL
-whoami 2>NUL
-echo %userprofile% 2>NUL
-
 rem --- Hostname --- 
 hostname  
 
@@ -37,6 +32,23 @@ rem --- AV Installed ---
 wmic /node:localhost /namespace:\\root\SecurityCenter2 path AntiVirusProduct Get DisplayName | findstr /V /B /C:displayName || echo No Antivirus installed
 
 rem =====================================Users and Groups=====================================
+rem --- Username ---
+echo %username% 2>NUL
+whoami 2>NUL
+echo %userprofile% 2>NUL
+
+rem --- Current Users Privileges ---
+whoami /priv
+
+rem --- Anyone Else Logged In? ---
+qwinsta
+
+rem --- Groups On System ---
+net localgroup
+
+rem --- Any Users in Administrators Group? ---
+net localgroup administrators
+
 rem --- Users --- 
 net users 
 
@@ -52,8 +64,58 @@ wmic sysaccount list
 rem --- Identify any local system accounts that are enabled ---
 wmic USERACCOUNT WHERE "Disabled=0 AND LocalAccount=1" GET Name
 
+rem --- Rgistry Entries for Autologon ---
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | findstr "DefaultUserName DefaultDomainName DefaultPassword"
+
 rem -- Password Policy ---
 net group
+
+rem --- Credential Manager ---
+cmdkey /list
+dir C:\Users\username\AppData\Local\Microsoft\Credentials\
+dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
+
+rem ======================================PERMISSIONS=========================================
+rem --- Access to SAM and SYSTEM Files ---
+%SYSTEMROOT%\repair\SAM
+%SYSTEMROOT%\System32\config\RegBack\SAM
+%SYSTEMROOT%\System32\config\SAM
+%SYSTEMROOT%\repair\system
+%SYSTEMROOT%\System32\config\SYSTEM
+%SYSTEMROOT%\System32\config\RegBack\system
+
+rem --- Full Permissions for Everyone or Users on Program Folders? ---
+icacls "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "Everyone"
+icacls "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "Everyone"
+
+icacls "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users"
+icacls "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users" 
+
+rem --- Modify Permissions for Everyone or Users on Program Folders? ---
+icacls "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "Everyone"
+icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "Everyone"
+
+icacls "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
+icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
+
+rem --- Accesschk.exe ---
+rem --- Writable Folders and Files ---
+accesschk.exe -qwsu "Everyone" *
+accesschk.exe -qwsu "Authenticated Users" *
+accesschk.exe -qwsu "Users" *
+
+rem --- What are the running processes/services on the system? Is there an inside service not exposed? If so, can we open it? ---
+tasklist /svc
+tasklist /v
+net start
+sc query
+
+rem --- Any weak service permissions? Can we reconfigure anything? ---
+accesschk.exe -uwcqv "Everyone" *
+accesschk.exe -uwcqv "Authenticated Users" *
+accesschk.exe -uwcqv "Users" *
+
+
 
 rem ======================================GPO=================================================
 
@@ -78,8 +140,9 @@ rem --- Show All Rules. Be verbose ---
 netsh advfirewall firewall show rule name=all verbose
 
 rem ====================================Services, Tasks and Processes==========================
-rem --- Scheduled Tasks --- 
-schtasks /query /fo LIST /v 
+rem --- What Scheduled Tasks are there? Anything custom implemented? --- 
+schtasks /query /fo LIST 2>nul | findstr TaskName
+dir C:\windows\tasks
 
 rem --- Process and Linked Services --- 
 tasklist /SVC 
@@ -91,7 +154,16 @@ rem --- Startup Services ---
 net start 
 
 rem --- Startup List ---
-wmic startup list full
+rem --- What commands are run at startup? ---
+wmic startup get caption,command
+
+rem --- Other Startup Checks ---
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
+dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 
 rem --- Service Permissions for Running Services ---
 sc query state= all | find "SERVICE_NAME" > service_list.txt
@@ -424,7 +496,7 @@ rem --- Search Everywhere for files containing 'pass*' ---
 rem !!! May need to edit this as it will return a LOT of results on more complex systems !!!
 rem TODO: Refine to most likely candidates for holding credentials
 rem --- Formats checked: *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg---
-findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg
+findstr /si pass* *.xml *.ini *.txt *.xls *.xlsx *.doc *.docx *.bat *.nt *.wsf *.vb *.ps1 *.json *.conf *.csv *.cmd *.msg 2>nul
 :: Nuclear Option
 :: findstr /si pass* *.*
 
@@ -438,14 +510,15 @@ dir /s Drives.xml
 dir /s DataSources.xml 
 
 rem ===========================================================================================
-rem --- Clear-text/base64 Passwords ---
+rem --- Sysprep or Unattended Files ---
 type c:\sysprep.inf
 type c:\sysprep\sysprep.xml
 type %WINDIR%\Panther\Unattend\Unattended.xml
 type %WINDIR%\Panther\Unattended.xml
-dir /s *cred*
-dir /s *vnc*
-dir /s *.config
+dir /s *pass* == *vnc* == *.config* 2>nul
+
+rem --- Search Everywhere for Sysprep or Unattended Files ---
+dir /s *sysprep.inf *sysprep.xml *unattended.xml *unattend.xml *unattend.txt 2>nul
 
 rem ===========================================================================================
 rem --- Find autostart files with unquoted service path --- 
@@ -468,12 +541,43 @@ reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"
 reg query "HKCU\Software\%username%\PuTTY\Sessions" 
 reg query "HKCU\Software\administrator\PuTTY\Sessions" 
 
-rem ===========================================================================================
-rem ---- Networking --- 
+rem =========================================Networking=========================================
+rem ---- Ipconfig --- 
 ipconfig /all 
+
+rem --- Route ---
 route print 
+
+rem --- ARP ---
 arp -A 
 
-rem ===========================================================================================
 rem --- Active Network Connections ---  
 netstat -ano  
+
+rem --- Hosts ---
+type C:\WINDOWS\System32\drivers\etc\hosts
+
+rem --- Interface Configurations
+netsh dump
+
+rem --- SNMP Configurations ---
+reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
+
+rem =========================================Server Checks========================================
+rem --- What’s in inetpub? Any hidden directories? web.config files? ---
+dir /a C:\inetpub\
+dir /s web.config
+type C:\Windows\System32\inetsrv\config\applicationHost.config > server-checks.txt
+
+rem --- IIS Logs ---
+rem --- need to check if this will run without explicit dates??? ---
+type C:\inetpub\logs\LogFiles\W3SVC1\u_ex[YYMMDD].log >> server-checks.txt
+type C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log >> server-checks.txt
+type C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log >> server-checks.txt
+type C:\inetpub\logs\LogFiles\FTPSVC2\u_ex[YYMMDD].log >> server-checks.txt
+
+rem --- XAMPP, Apache, or PHP installed? Any there any XAMPP, Apache, or PHP configuration files?--- 
+dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
+
+rem --- Apache Web Logs --- 
+dir /s access.log error.log
