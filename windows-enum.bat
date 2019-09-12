@@ -178,7 +178,7 @@ FOR /F "service=2 delims= " %%A in (service_list.txt) DO (
 
 FOR /F "service=*" %%B IN (services.txt) DO (
 	sc qc %%B >> service_info.txt
-	accesschk64.exe -accepteula -ucqv %%B >> service_info.txt
+	accesschk.exe -accepteula -ucqv %%B >> service_info.txt
 )
 
 del service_list.txt
