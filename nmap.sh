@@ -9,12 +9,13 @@ ip=${echo $host | grep ":" | cut -d ":" -f 2}
 hostname=${echo $host | grep "." | cut -d "." -f 1}
 do
   if [ ! -d $ip ]; then
-    $mkdir $host
-    $mkdir $ip/nmap
-    $mkdir $ip/nmap/udp
+    $mkdir $hostname
+    $mkdir $hostname/nmap
+    $mkdir $hostname/nmap/udp
+
+    # Nmap 
+    $nmap -sS-sC -sV --version-all -A -O -p- -oA $hostname/nmap/initial $ip
+    $nmap -sU -sC -sV --version-all -p- -oA $hostname/nmap/udp/initial_udp $ip
   fi
-  # Nmap 
-  $nmap -sS-sC -sV --version-intensity=9 -A -O -p- -oA $host/nmap/initial $ip
-  $nmap -sU -sC -sV --version-intensity=9 -p- -oA $host/nmap/udp/initial_udp $ip
 # End of loop
 done
