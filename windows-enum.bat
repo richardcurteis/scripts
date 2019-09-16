@@ -127,7 +127,11 @@ accesschk.exe -uwcqv "Everyone" *
 accesschk.exe -uwcqv "Authenticated Users" *
 accesschk.exe -uwcqv "Users" *
 
+rem ======================================Mimikatz============================================
+rem give it a go here
 
+rem ======================================Incognito===========================================
+rem give it a go here
 
 rem ======================================GPO=================================================
 
