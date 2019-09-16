@@ -41,6 +41,8 @@ echo %userprofile% 2>NUL
 rem --- Current Users Privileges ---
 whoami /priv
 
+accesschk.exe /accepteula -q -a *
+
 rem --- Anyone Else Logged In? ---
 qwinsta
 
