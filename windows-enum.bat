@@ -105,6 +105,11 @@ icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "Everyone"
 icacls "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
 icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
 
+rem --- Services in Registry: Insecure Registry Permissions? ---
+rem https://pentestlab.blog/2017/03/31/insecure-registry-permissions/
+rem Need more research here
+rem req query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services
+
 rem --- Accesschk.exe ---
 rem --- Writable Folders and Files ---
 accesschk.exe -qwsu "Everyone" *
