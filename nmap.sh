@@ -10,10 +10,13 @@ hostname=${echo $host | grep "." | cut -d "." -f 1}
 do
   if [ ! -d $ip ]; then
     $mkdir -p $hostname/nmap/udp
+    $mkdir -p $hostname/foothold
+    $mkdir -p $hostname/priv_esc
+    $mkdir -p $hostname/post_exploit
 
     # Nmap 
     $nmap -sS -sC -sV --version-all -A -O -p- -oA $hostname/nmap/initial $ip
-    $nmap -sU -sV  -F -oA $hostname/nmap/udp/common_udp_ports $ip
+    $nmap -sU -F -oA $hostname/nmap/udp/common_udp_ports $ip
   fi
 # End of loop
 done
