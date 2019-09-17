@@ -61,7 +61,7 @@ wmic useraccount list
 rem --- List Groups ---
 wmic group list
 
---- Sysaccount List ---
+rem --- Sysaccount List ---
 wmic sysaccount list
 
 rem --- Identify any local system accounts that are enabled ---
@@ -111,10 +111,6 @@ rem Need more research here
 rem req query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services
 
 rem --- Accesschk.exe ---
-rem --- Writable Folders and Files ---
-accesschk.exe -qwsu "Everyone" *
-accesschk.exe -qwsu "Authenticated Users" *
-accesschk.exe -qwsu "Users" *
 
 rem --- What are the running processes/services on the system? Is there an inside service not exposed? If so, can we open it? ---
 tasklist /svc
