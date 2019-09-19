@@ -4,7 +4,26 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 :: https://it-ovid.blogspot.com/2012/02/windows-privilege-escalation.html?m=1
 :: https://github.com/ihack4falafel/OSCP/blob/master/Windows/WinPrivCheck.bat
 :: https://www.andreafortuna.org/2017/08/09/windows-command-line-cheatsheet-part-2-wmic/
-:: https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+:: https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/ 
+
+SET cac=
+:: Check if i%cac%ls is installed/in PATH
+
+for %%X in (icacls.exe) do (
+    if not defined cac (
+		:: Set as permissions binary: %cac%
+		SET cac=%%~$PATH:X
+    )
+  )
+
+:: If i%cac%ls.exe was NOT found, SET %cac%ls.exe
+if not defined cac (
+      for %%X in (cacls.exe) do (
+			SET cac=%%~$PATH:X
+		)
+    )
+rem [!] %cac% SET for permissions checks...
+    
 
 rem ====================================PWK Keys Specific Check===============================
 rem --- Check for PWK Keys --- 
@@ -80,30 +99,30 @@ dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 
 rem ======================================PERMISSIONS=========================================
 rem --- Access to SAM and SYSTEM Files ---
-rem https://superuser.com/questions/322423/explain-the-output-of-icacls-exe-line-by-line-item-by-item
-rem https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls
+rem https://superuser.com/questions/322423/explain-the-output-of-%cac%-exe-line-by-line-item-by-item
+rem https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/%cac%
 rem
-set system_root=echo %SYSTEMROOT%
-icacls.exe %system_root%\repair\SAM
-icacls.exe %system_root%\System32\config\RegBack\SAM
-icacls.exe %system_root%\System32\config\SAM
-icacls.exe %system_root%\repair\system
-icacls.exe %system_root%\System32\config\SYSTEM
-icacls.exe %system_root%\System32\config\RegBack\system
+SET system_root=echo %SYSTEMROOT%
+%cac% %system_root%\repair\SAM
+%cac% %system_root%\System32\config\RegBack\SAM
+%cac% %system_root%\System32\config\SAM
+%cac% %system_root%\repair\system
+%cac% %system_root%\System32\config\SYSTEM
+%cac% %system_root%\System32\config\RegBack\system
 
 rem --- Full Permissions for Everyone or Users on Program Folders? ---
-icacls "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "Everyone"
-icacls "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "Everyone"
+%cac% "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "Everyone"
+%cac% "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "Everyone"
 
-icacls "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users"
-icacls "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users" 
+%cac% "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users"
+%cac% "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users" 
 
 rem --- Modify Permissions for Everyone or Users on Program Folders? ---
-icacls "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "Everyone"
-icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "Everyone"
+%cac% "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "Everyone"
+%cac% "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "Everyone"
 
-icacls "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
-icacls "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
+%cac% "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
+%cac% "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
 
 rem --- Services in Registry: Insecure Registry Permissions? ---
 rem https://pentestlab.blog/2017/03/31/insecure-registry-permissions/
@@ -501,12 +520,13 @@ IF not errorlevel 1 (
 
 rem ===========================================================================================
 rem --- Wildcard search for  files that contain *pass* in filename -- 
-dir /s *pass* 
+dir /s *pass* *.xml *.ini *.txt *.dat *.msg 2>nul
 
 rem ===========================================================================================
-rem --- Search Everywhere for files containing 'pass*' --- 
+rem --- Search Everywhere for files containing contents, 'pass*' --- 
 rem --- Formats checked: *.xml *.ini *.txt *.dat *.msg---
-findstr /si pass* *.xml *.ini *.txt *.dat *.msg 2>nul
+rem Removed *.txt
+findstr /si pass* *.xml *.ini *.dat *.msg 2>nul
 :: Nuclear Option
 :: findstr /si pass* *.*
 
