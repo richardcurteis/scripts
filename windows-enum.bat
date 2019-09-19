@@ -15,7 +15,7 @@ for %%X in (icacls.exe) do (
     )
   )
 
-:: If i%cac%ls.exe was NOT found, SET %cac%ls.exe
+:: If i%cac%ls.exe was NOT found, SET cacls.exe
 if not defined cac (
       for %%X in (cacls.exe) do (
 			SET cac=%%~$PATH:X
