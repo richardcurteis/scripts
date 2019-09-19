@@ -198,12 +198,12 @@ dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 rem --- Service Permissions for Running Services ---
 sc query state= all | find "SERVICE_NAME" > service_list.txt
 
-FOR /F "tokens=2 delims= " %%service in (service_list.txt) DO (
-	echo %%service >> services.txt
+FOR /F "tokens=2 delims= " %%s in (service_list.txt) DO (
+	echo %%s >> services.txt
 )
 
-FOR /F "tokens=*" %%service IN (services.txt) DO (
-	sc qc %%service >> service_info.txt
+FOR /F "tokens=*" %%s IN (services.txt) DO (
+	sc qc %%s >> service_info.txt
 	accesschk.exe -accepteula -ucqv %%B >> service_info.txt
 )
 
