@@ -7,8 +7,7 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 :: https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/ 
 
 SET cac=
-:: Check if i%cac%ls is installed/in PATH
-
+:: Check if icacls.exe is installed/in PATH
 for %%X in (icacls.exe) do (
     if not defined cac (
 		:: Set as permissions binary: %cac%
