@@ -1,5 +1,5 @@
 @echo off
-rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation ---"
+echo "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation ---"
 :: http://www.fuzzysecurity.com/tutorials/16.html
 :: https://it-ovid.blogspot.com/2012/02/windows-privilege-escalation.html?m=1
 :: https://github.com/ihack4falafel/OSCP/blob/master/Windows/WinPrivCheck.bat
@@ -8,99 +8,111 @@ rem "--- Windows Enum Script for Windows Enummeration, PrivEsc and Exploitation 
 
 SET cac=
 :: Check if icacls.exe is installed/in PATH
-for %%X in (icacls.exe) do (
+for %%I in (icacls.exe) do (
     if not defined cac (
 		:: Set as permissions binary: %cac%
-		SET cac=%%~$PATH:X
+		SET cac=%%~$PATH:I
     )
   )
 
-:: If i%cac%ls.exe was NOT found, SET cacls.exe
+SET access_chk_path=
+:: Check if accesschk.exe is installed/in PATH
+for %%A in (accesschk.exe) do (
+    if not defined access_chk_path (
+		:: Set as permissions binary: %cac%
+		SET access_chk_path=%%~$PATH:A
+    )
+  )
+
+:: If icacls.exe was NOT found, SET cacls.exe
 if not defined cac (
       for %%X in (cacls.exe) do (
 			SET cac=%%~$PATH:X
 		)
     )
-rem [!] %cac% SET for permissions checks...
+	
+echo [!] %cac% SET for permissions checks...
     
 
-rem ====================================PWK Keys Specific Check===============================
-rem --- Check for PWK Keys --- 
+echo ====================================PWK Keys Specific Check===============================
+echo --- Check for PWK Keys --- 
 dir /s proof.txt
 dir /s network-secret.txt
 
-rem =====================================OS General===========================================
-rem --- Hostname --- 
+echo =====================================OS General===========================================
+echo --- Hostname --- 
 hostname  
 
-rem --- OS Version ---  
+echo --- OS Version ---  
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"  /C:"System Type"
 
-rem -- Envrionment Variables + PATH --- 
+echo -- Envrionment Variables + PATH --- 
 wmic environment list
 
-rem --- System Info --- 
-rem !!! Feed this output directly into WESNG !!!
-rem https://github.com/bitsadmin/wesng
-rem RUN: python wes.py --update
-rem Copy output to systeminfo.txt
-rem RUN: wes.py systeminfo.txt
+echo --- System Info --- 
+echo !!! Feed this output directly into WESNG !!!
+echo https://github.com/bitsadmin/wesng
+echo RUN: python wes.py --update
+echo Copy output to systeminfo.txt
+echo RUN: wes.py systeminfo.txt
 systeminfo
 
-rem --- AV Installed ---
+echo --- AV Installed ---
 wmic /node:localhost /namespace:\\root\SecurityCenter2 path AntiVirusProduct Get DisplayName | findstr /V /B /C:displayName || echo No Antivirus installed
 
-rem =====================================Users and Groups=====================================
-rem --- Username ---
+echo =====================================Users and Groups=====================================
+echo --- Username ---
 echo %username% 2>NUL
 whoami 2>NUL
 echo %userprofile% 2>NUL
 
-rem --- Current Users Privileges ---
+echo --- Current Users Privileges ---
 whoami /priv
 
 accesschk.exe /accepteula -q -a *
 
-rem --- Anyone Else Logged In? ---
+echo --- Anyone Else Logged In? ---
 qwinsta
 
-rem --- Groups On System ---
+echo --- Groups On System ---
 net localgroup
 
-rem --- Any Users in Administrators Group? ---
+echo --- Any Users in Administrators Group? ---
 net localgroup administrators
 
-rem --- Users --- 
+echo --- Users --- 
 net users 
 
-rem -- List User Accounts ---
+echo -- List User Accounts ---
 wmic useraccount list
 
-rem --- List Groups ---
+echo --- List Groups ---
 wmic group list
 
-rem --- Sysaccount List ---
+echo --- Sysaccount List ---
 wmic sysaccount list
 
-rem --- Identify any local system accounts that are enabled ---
+echo --- Identify any local system accounts that are enabled ---
 wmic USERACCOUNT WHERE "Disabled=0 AND LocalAccount=1" GET Name
 
-rem --- Rgistry Entries for Autologon ---
+echo --- Rgistry Entries for Autologon ---
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | findstr "DefaultUserName DefaultDomainName DefaultPassword"
 
-rem -- Password Policy ---
+echo -- Password Policy ---
 net group
 
-rem --- Credential Manager:  List stored credentials ---
+echo --- Credential Manager:  List stored credentials ---
 cmdkey /list
+echo C:\Users\username\AppData\Local\Microsoft\Credentials\
 dir C:\Users\username\AppData\Local\Microsoft\Credentials\
+echo C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 
-rem ======================================PERMISSIONS=========================================
-rem --- Access to SAM and SYSTEM Files ---
-rem https://superuser.com/questions/322423/explain-the-output-of-%cac%-exe-line-by-line-item-by-item
-rem https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/%cac%
-rem
+echo ======================================PERMISSIONS=========================================
+echo --- Access to SAM and SYSTEM Files ---
+echo https://superuser.com/questions/322423/explain-the-output-of-%cac%-exe-line-by-line-item-by-item
+echo https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/%cac%
+echo
 SET system_root=echo %SYSTEMROOT%
 %cac% %system_root%\repair\SAM
 %cac% %system_root%\System32\config\RegBack\SAM
@@ -109,85 +121,113 @@ SET system_root=echo %SYSTEMROOT%
 %cac% %system_root%\System32\config\SYSTEM
 %cac% %system_root%\System32\config\RegBack\system
 
-rem --- Full Permissions for Everyone or Users on Program Folders? ---
+echo --- Full Permissions for Everyone or Users on Program Folders? ---
 %cac% "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "Everyone"
 %cac% "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "Everyone"
 
 %cac% "C:\Program Files\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users"
 %cac% "C:\Program Files (x86)\*" 2>nul | findstr "(F)" | findstr "BUILTIN\Users" 
 
-rem --- Modify Permissions for Everyone or Users on Program Folders? ---
+echo --- Modify Permissions for Everyone or Users on Program Folders? ---
 %cac% "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "Everyone"
 %cac% "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "Everyone"
 
 %cac% "C:\Program Files\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
 %cac% "C:\Program Files (x86)\*" 2>nul | findstr "(M)" | findstr "BUILTIN\Users" 
 
-rem --- Services in Registry: Insecure Registry Permissions? ---
-rem https://pentestlab.blog/2017/03/31/insecure-registry-permissions/
-rem Need more research here
-rem req query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services
+echo --- Services in Registry: Insecure Registry Permissions? ---
+echo https://pentestlab.blog/2017/03/31/insecure-registry-permissions/
+echo Need more research here
+echo req query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services
 
-rem --- Accesschk.exe ---
+echo --- Accesschk.exe ---
 
-rem --- What are the running processes/services on the system? Is there an inside service not exposed? If so, can we open it? ---
+echo --- What are the running processes/services on the system? Is there an inside service not exposed? If so, can we open it? ---
 tasklist /svc
 tasklist /v
 net start
 sc query
 
-rem --- Any weak service permissions? Can we reconfigure anything? ---
-accesschk.exe -uwcqv "Everyone" *
-accesschk.exe -uwcqv "Authenticated Users" *
-accesschk.exe -uwcqv "Users" *
+echo --- Any weak service permissions? Can we reconfigure anything? ---
+echo Checking for accesschk.exe....
 
-rem ======================================Mimikatz============================================
-rem give it a go here
+:: If accesschk.exe was found, run checks
+if defined access_chk_path (
+      for %%X in (cacls.exe) do (
+			echo --- AccessChk Checks ---
+			echo --- Current Users Privileges ---
+			accesschk.exe /accepteula -q -a *
+			accesschk.exe -uwcqv "Everyone" *
+			accesschk.exe -uwcqv "Authenticated Users" *
+			accesschk.exe -uwcqv "Users" *
+			
+			echo --- Service Permissions for Running Services ---
+			sc query state= all | find "SERVICE_NAME" > service_list.txt
 
-rem ======================================Incognito===========================================
-rem give it a go here
+			FOR /F "tokens=2 delims= " %%s in (service_list.txt) DO (
+			echo %%s >> services.txt
+				)
 
-rem ======================================GPO=================================================
+			FOR /F "tokens=*" %%s IN (services.txt) DO (
+			sc qc %%s >> service_info.txt
+			accesschk.exe -accepteula -ucqv %%B >> service_info.txt
+			)
 
-rem --- GPO User ---
+			del service_list.txt
+			del services.txt
+		)
+    ) else (
+			echo accesschk.exe not found on host
+			sc query state= all | find "SERVICE_NAME"
+		)
+
+echo ======================================Mimikatz============================================
+echo Mimikatz Placeholder
+
+echo ======================================Incognito===========================================
+echo Incognito Placeholder
+
+echo ======================================GPO=================================================
+
+echo --- GPO User ---
 gpresult /Scope User /v 
 
-rem --- GPO Computer ---
+echo --- GPO Computer ---
 gpresult /Scope Computer /v 
 
-rem ====================================Shares================================================
-rem --- List Shares ---
+echo ====================================Shares================================================
+echo --- List Shares ---
 wmic share list
 
-rem ====================================Firewall===============================================
-rem --- Current Profile --- 
+echo ====================================Firewall===============================================
+echo --- Current Profile --- 
 netsh advfirewall show currentprofile
 
-rem --- All Profiles --- 
+echo --- All Profiles --- 
 netsh advfirewall show allprofiles
 
-rem --- Show All Rules. Be verbose ---
+echo --- Show All Rules. Be verbose ---
 netsh advfirewall firewall show rule name=all verbose
 
-rem ====================================Services, Tasks and Processes==========================
-rem --- What Scheduled Tasks are there? Anything custom implemented? --- 
+echo ====================================Services, Tasks and Processes==========================
+echo --- What Scheduled Tasks are there? Anything custom implemented? --- 
 schtasks /query /fo LIST 2>nul | findstr TaskName
 dir C:\windows\tasks
 
-rem --- Process and Linked Services --- 
+echo --- Process and Linked Services --- 
 tasklist /SVC 
 
-rem --- Processes and Linked DLLs ---
+echo --- Processes and Linked DLLs ---
 tasklist /m
 
-rem --- Startup Services --- 
+echo --- Startup Services --- 
 net start 
 
-rem --- Startup List ---
-rem --- What commands are run at startup? ---
+echo --- Startup List ---
+echo --- What commands are run at startup? ---
 wmic startup get caption,command
 
-rem --- Other Startup Checks ---
+echo --- Other Startup Checks ---
 reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
 reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
 reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
@@ -195,85 +235,70 @@ reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
 dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
 dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 
-rem --- Service Permissions for Running Services ---
-sc query state= all | find "SERVICE_NAME" > service_list.txt
+echo =========================================Software and Patching===================================
 
-FOR /F "tokens=2 delims= " %%s in (service_list.txt) DO (
-	echo %%s >> services.txt
-)
-
-FOR /F "tokens=*" %%s IN (services.txt) DO (
-	sc qc %%s >> service_info.txt
-	accesschk.exe -accepteula -ucqv %%B >> service_info.txt
-)
-
-del service_list.txt
-del services.txt
-
-rem =========================================Software and Patching===================================
-
-rem --- Installed Software ---
+echo --- Installed Software ---
 wmic product get Name, Version
-rem --- Check for Installed Patches ---- 
+echo --- Check for Installed Patches ---- 
 wmic qfe get Caption,Description,HotFixID,InstalledOn 
 
-rem WMI Hotfixes 
+echo WMI Hotfixes 
 wmic qfe list full 
 
-rem --- Check for Installed Drivers ---- 
+echo --- Check for Installed Drivers ---- 
 DRIVERQUERY 
 
-rem --- Reference Exploits against Patches ---
-rem Reference Below chart to check for false positives.
+echo --- Reference Exploits against Patches ---
+echo Reference Below chart to check for false positives.
 
 
-rem #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem #    Exploits Index    | 2K      | XP    | 2K3   | 2K8     | Vista   | 7   |                           Title                       |
-rem #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB2592799 | MS11-080 |    X    | SP3   | SP3   |    X    |    X    |  X  | afd.sys                  - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB3143141 | MS16-032 |    X    |   X   |   X   | SP1/2   | SP2     | SP1 | Secondary Logon          - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB2393802 | MS11-011 |    X    | SP2/3 | SP2   | SP2     | SP1/2   | SP0 | WmiTraceMessageVa        - Local privilege Escalation | 
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB982799  | MS10-059 |    X    |   X   |   X   | ALL     | ALL     | SP0 | Chimichurri              - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB979683  | MS10-021 | SP4     | SP2/3 | SP2   | SP2     | SP0/1/2 | SP0 | Windows Kernel           - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB2305420 | MS10-092 |    X    |   X   |   X   | SP0/1/2 | SP1/2   | SP0 | Task Scheduler           - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB981957  | MS10-073 |    X    | SP2/3 | SP2   | SP2     | SP1/2   | SP0 | Keyboard Layout          - Local privilege Escalation | 
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB4013081 | MS17-017 |    X    |   X   |   X   | SP2     | SP2     | SP1 | Registry Hive Loading    - Local privilege Escalation | 
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB977165  | MS10-015 | ALL     | ALL   | ALL   | ALL     | ALL     | ALL | User Mode to Ring        - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB941693  | MS08-025 | SP4     | SP2   | SP1/2 | SP0     | SP0/1   |  X  | win32k.sys               - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB920958  | MS06-049 | SP4     |   X   |   X   |    X    |    X    |  X  | ZwQuerySysInfo           - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB914389  | MS06-030 | ALL     | SP2   |   X   |    X    |    X    |  X  | Mrxsmb.sys               - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB908523  | MS05-055 | SP4     |   X   |   X   |    X    |    X    |  X  | APC Data-Free            - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB890859  | MS05-018 | SP3/4   | SP1/2 |   X   |    X    |    X    |  X  | CSRSS                    - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB842526  | MS04-019 | SP2/3/4 |   X   |   X   |    X    |    X    |  X  | Utility Manager          - Local privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB835732  | MS04-011 | SP2/3/4 | SP0/1 |   X   |    X    |    X    |  X  | LSASS service BoF        - Remote Code Execution      | 
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB841872  | MS04-020 | SP4     |   X   |   X   |    X    |    X    |  X  | POSIX                    - Local Privilege Escalation |
-rem #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB2975684 | MS14-040 |    X    |   X   | SP2   | SP2     | SP2     | SP1 | afd.sys Dangling Pointer - Local Privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB3136041 | MS16-016 |    X    |   X   |   X   | SP1/2   | SP2     | SP1 | WebDAV to Address        - Local Privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------# 
-rem # KB3057191 | MS15-051 |    X    |   X   | SP2   | SP2     | SP2     | SP1 | win32k.sys               - Local Privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
-rem # KB2989935 | MS14-070 |    X    |   X   | SP2   |    X    |    X    |  X  | TCP/IP                   - Local Privilege Escalation |
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------# 
-rem # KB2503665 | MS11-046 |    X    |  SP3  | SP2   |  SP1/2  |  SP1/2  | SP1 | 'afd.sys'                - Local Privilege Escalation |  
-rem #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo #    Exploits Index    | 2K      | XP    | 2K3   | 2K8     | Vista   | 7   |                           Title                       |
+echo #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB2592799 | MS11-080 |    X    | SP3   | SP3   |    X    |    X    |  X  | afd.sys                  - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB3143141 | MS16-032 |    X    |   X   |   X   | SP1/2   | SP2     | SP1 | Secondary Logon          - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB2393802 | MS11-011 |    X    | SP2/3 | SP2   | SP2     | SP1/2   | SP0 | WmiTraceMessageVa        - Local privilege Escalation | 
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB982799  | MS10-059 |    X    |   X   |   X   | ALL     | ALL     | SP0 | Chimichurri              - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB979683  | MS10-021 | SP4     | SP2/3 | SP2   | SP2     | SP0/1/2 | SP0 | Windows Kernel           - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB2305420 | MS10-092 |    X    |   X   |   X   | SP0/1/2 | SP1/2   | SP0 | Task Scheduler           - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB981957  | MS10-073 |    X    | SP2/3 | SP2   | SP2     | SP1/2   | SP0 | Keyboard Layout          - Local privilege Escalation | 
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB4013081 | MS17-017 |    X    |   X   |   X   | SP2     | SP2     | SP1 | Registry Hive Loading    - Local privilege Escalation | 
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB977165  | MS10-015 | ALL     | ALL   | ALL   | ALL     | ALL     | ALL | User Mode to Ring        - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB941693  | MS08-025 | SP4     | SP2   | SP1/2 | SP0     | SP0/1   |  X  | win32k.sys               - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB920958  | MS06-049 | SP4     |   X   |   X   |    X    |    X    |  X  | ZwQuerySysInfo           - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB914389  | MS06-030 | ALL     | SP2   |   X   |    X    |    X    |  X  | Mrxsmb.sys               - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB908523  | MS05-055 | SP4     |   X   |   X   |    X    |    X    |  X  | APC Data-Free            - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB890859  | MS05-018 | SP3/4   | SP1/2 |   X   |    X    |    X    |  X  | CSRSS                    - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB842526  | MS04-019 | SP2/3/4 |   X   |   X   |    X    |    X    |  X  | Utility Manager          - Local privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB835732  | MS04-011 | SP2/3/4 | SP0/1 |   X   |    X    |    X    |  X  | LSASS service BoF        - Remote Code Execution      | 
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB841872  | MS04-020 | SP4     |   X   |   X   |    X    |    X    |  X  | POSIX                    - Local Privilege Escalation |
+echo #----------------------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB2975684 | MS14-040 |    X    |   X   | SP2   | SP2     | SP2     | SP1 | afd.sys Dangling Pointer - Local Privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB3136041 | MS16-016 |    X    |   X   |   X   | SP1/2   | SP2     | SP1 | WebDAV to Address        - Local Privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------# 
+echo # KB3057191 | MS15-051 |    X    |   X   | SP2   | SP2     | SP2     | SP1 | win32k.sys               - Local Privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
+echo # KB2989935 | MS14-070 |    X    |   X   | SP2   |    X    |    X    |  X  | TCP/IP                   - Local Privilege Escalation |
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------# 
+echo # KB2503665 | MS11-046 |    X    |  SP3  | SP2   |  SP1/2  |  SP1/2  | SP1 | 'afd.sys'                - Local Privilege Escalation |  
+echo #-----------#----------#---------#-------#-------#---------#---------#-----#-------------------------------------------------------#
 
 wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:"KB2592799" | find /i "KB2592799" 1>NUL
 IF not errorlevel 1 (
@@ -517,20 +542,20 @@ IF not errorlevel 1 (
 
 )
 
-rem ===========================================================================================
-rem --- Wildcard search for  files that contain *pass* in filename -- 
+echo ===========================================================================================
+echo --- Wildcard search for  files that contain *pass* in filename -- 
 dir /s *pass* *.xml *.ini *.txt *.dat *.msg 2>nul
 
-rem ===========================================================================================
-rem --- Search Everywhere for files containing contents, 'pass*' --- 
-rem --- Formats checked: *.xml *.ini *.txt *.dat *.msg---
-rem Removed *.txt
+echo ===========================================================================================
+echo --- Search Everywhere for files containing contents, 'pass*' --- 
+echo --- Formats checked: *.xml *.ini *.txt *.dat *.msg---
+echo Removed *.txt
 findstr /si pass* *.xml *.ini *.dat *.msg 2>nul
 :: Nuclear Option
 :: findstr /si pass* *.*
 
-rem ===========================================================================================
-rem --- Search for Interesting XML --- 
+echo ===========================================================================================
+echo --- Search for Interesting XML --- 
 dir /s Groups.xml 
 dir /s Services.xml 
 dir /s Printers.xml 
@@ -538,30 +563,30 @@ dir /s ScheduledTasks.xml
 dir /s Drives.xml 
 dir /s DataSources.xml 
 
-rem ===========================================================================================
-rem --- Sysprep or Unattended Files ---
+echo ===========================================================================================
+echo --- Sysprep or Unattended Files ---
 type c:\sysprep.inf
 type c:\sysprep\sysprep.xml
 type %WINDIR%\Panther\Unattend\Unattended.xml
 type %WINDIR%\Panther\Unattended.xml
 dir /s *pass* == *vnc* == *.config* 2>nul
 
-rem --- Search Everywhere for Sysprep or Unattended Files ---
+echo --- Search Everywhere for Sysprep or Unattended Files ---
 dir /s *sysprep.inf *sysprep.xml *unattended.xml *unattend.xml *unattend.txt 2>nul
 
-rem ===========================================================================================
-rem --- Find autostart files with unquoted service path --- 
+echo ===========================================================================================
+echo --- Find autostart files with unquoted service path --- 
 wmic service get name,displayname,pathname,startmode |findstr /i "Auto" |findstr /i /v "C:\\\" |findstr /i /v """  
 
-rem ===========================================================================================
-rem --- Check for AlwaysInstallElevated --- 
-rem *.MSI Install as SYSTEM
-rem This will only work if both registry keys contain "AlwaysInstallElevated" with DWORD values of 1.
+echo ===========================================================================================
+echo --- Check for AlwaysInstallElevated --- 
+echo *.MSI Install as SYSTEM
+echo This will only work if both registry keys contain "AlwaysInstallElevated" with DWORD values of 1.
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated  
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated 
 
-rem ===========================================================================================
-rem --- Search Registry for 'password' --- 
+echo ===========================================================================================
+echo --- Search Registry for 'password' --- 
 reg query HKLM /f password /t REG_SZ /s 
 reg query HKCU /f password /t REG_SZ /s 
 reg query HKU /f password /t REG_SZ /s
@@ -571,43 +596,43 @@ reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"
 reg query "HKCU\Software\%username%\PuTTY\Sessions" 
 reg query "HKCU\Software\administrator\PuTTY\Sessions" 
 
-rem =========================================Networking=========================================
-rem ---- Ipconfig --- 
+echo =========================================Networking=========================================
+echo ---- Ipconfig --- 
 ipconfig /all 
 
-rem --- Route ---
+echo --- Route ---
 route print 
 
-rem --- ARP ---
+echo --- ARP ---
 arp -A 
 
-rem --- Active Network Connections ---  
+echo --- Active Network Connections ---  
 netstat -ano  
 
-rem --- Hosts ---
+echo --- Hosts ---
 type C:\WINDOWS\System32\drivers\etc\hosts
 
-rem --- Interface Configurations
+echo --- Interface Configurations
 netsh dump
 
-rem --- SNMP Configurations ---
+echo --- SNMP Configurations ---
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 
-rem =========================================Web Server Checks====================================
-rem --- What’s in inetpub? Any hidden directories? web.config files? ---
+echo =========================================Web Server Checks====================================
+echo --- What’s in inetpub? Any hidden directories? web.config files? ---
 dir /a C:\inetpub\
 dir /s web.config
 type C:\Windows\System32\inetsrv\config\applicationHost.config > server-checks.txt
 
-rem --- IIS Logs ---
-rem --- need to check if this will run without explicit dates??? ---
+echo --- IIS Logs ---
+echo --- need to check if this will run without explicit dates??? ---
 type C:\inetpub\logs\LogFiles\W3SVC1\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\FTPSVC2\u_ex[YYMMDD].log >> server-checks.txt
 
-rem --- XAMPP, Apache, or PHP installed? Any there any configuration files?--- 
+echo --- XAMPP, Apache, or PHP installed? Any there any configuration files?--- 
 dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
 
-rem --- Apache Web Logs --- 
+echo --- Apache Web Logs --- 
 dir /s access.log error.log
