@@ -619,7 +619,7 @@ echo --- SNMP Configurations ---
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 
 echo =========================================Web Server Checks====================================
-echo --- What’s in inetpub? Any hidden directories? web.config files? ---
+echo --- What's in inetpub? Any hidden directories? web.config files? ---
 dir /a C:\inetpub\
 dir /s web.config
 type C:\Windows\System32\inetsrv\config\applicationHost.config > server-checks.txt
