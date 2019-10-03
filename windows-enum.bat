@@ -228,10 +228,6 @@ echo --- What commands are run at startup? ---
 wmic startup get caption,command
 
 echo --- Other Startup Checks ---
-reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
-reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
-reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
-reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
 dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
 dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
 
@@ -250,12 +246,12 @@ DRIVERQUERY
 
 echo ===========================================================================================
 echo --- Wildcard search for  files that contain *pass* in filename -- 
-dir /s *pass* *.xml *.ini *.txt 2>nul
+dir /b /s *pass* *.xml *.ini *.txt 2>nul
 
 echo ===========================================================================================
 echo --- Search Everywhere for files containing contents, 'pass*' --- 
 echo --- Formats checked: *.xml *.ini *.txt ---
-findstr /si pass* *.xml *.ini *.txt 2>nul
+findstr /si *pass* *.xml *.ini *.txt 2>nul
 
 echo ===========================================================================================
 echo --- Search for Interesting XML --- 
@@ -268,14 +264,13 @@ dir /s DataSources.xml
 
 echo ===========================================================================================
 echo --- Sysprep or Unattended Files ---
-type c:\sysprep.inf
-type c:\sysprep\sysprep.xml
-type %WINDIR%\Panther\Unattend\Unattended.xml
-type %WINDIR%\Panther\Unattended.xml
-dir /s *pass* == *vnc* == *.config* 2>nul
-
-echo --- Search Everywhere for Sysprep or Unattended Files ---
-dir /s *sysprep.inf *sysprep.xml *unattended.xml *unattend.xml *unattend.txt 2>nul
+dir /b /s sysprep.inf
+dir /b /s sysprep.xml
+dir /b /s Unattended.xml
+dir /b /s unattend.xml
+dir /b /s unattend.txt 2>nul
+dir /b /s vnc.ini
+dir /b /s *pass* == *.config* 2>nul
 
 echo ===========================================================================================
 echo --- Find autostart files with unquoted service path --- 
@@ -285,11 +280,13 @@ echo ===========================================================================
 echo --- Check for AlwaysInstallElevated --- 
 echo *.MSI Install as SYSTEM
 echo This will only work if both registry keys contain "AlwaysInstallElevated" with DWORD values of 1.
+echo
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated  
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated 
 
-echo ===========================================================================================
+echo ===========================================Registry Checks===================================
 echo --- Search Registry for 'password' --- 
+echo
 reg query HKLM /f password /t REG_SZ /s 
 reg query HKCU /f password /t REG_SZ /s 
 reg query HKU /f password /t REG_SZ /s
@@ -298,9 +295,21 @@ reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP" 
 reg query "HKCU\Software\%username%\PuTTY\Sessions" 
 reg query "HKCU\Software\administrator\PuTTY\Sessions" 
+echo
+
+echo --- Registry Startup Checks ---
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+
+echo
+echo - Windows Autolgin - 
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
 
 echo =========================================Networking=========================================
 echo ---- Ipconfig --- 
+ech
 ipconfig /all 
 
 echo --- Route ---
@@ -309,7 +318,8 @@ route print
 echo --- ARP ---
 arp -A 
 
-echo --- Active Network Connections ---  
+echo --- Active Network Connections --- 
+echo
 netstat -ano  
 
 echo --- Hosts ---
@@ -322,13 +332,14 @@ echo --- SNMP Configurations ---
 reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 
 echo =========================================Web Server Checks====================================
+echo
 echo --- What's in inetpub? Any hidden directories? web.config files? ---
 dir /a C:\inetpub\
 dir /s web.config
 type C:\Windows\System32\inetsrv\config\applicationHost.config > server-checks.txt
 
 echo --- IIS Logs ---
-echo --- need to check if this will run without explicit dates??? ---
+echo --- Need to check if this will run without explicit dates??? ---
 type C:\inetpub\logs\LogFiles\W3SVC1\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log >> server-checks.txt
 type C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log >> server-checks.txt
