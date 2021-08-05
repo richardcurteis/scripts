@@ -45,6 +45,9 @@ git clone git@github.com:pwntester/ysoserial.net.git
 git clone git@github.com:frohoff/ysoserial.git
 git clone git@github.com:danielmiessler/SecLists.git
 git clone git@github.com:SecureAuthCorp/impacket.git
+git clone git@github.com:swisskyrepo/PayloadsAllTheThings.git
+git clone git@github.com:GrrrDog/Java-Deserialization-Cheat-Sheet.git
+
 git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
 cd CrackMapExec
 poetry install
