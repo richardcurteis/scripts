@@ -9,6 +9,7 @@ cat ~/.ssh/id_ed25519.pub
 read -p "Copy pubkey to git... "
 
 apt install curl  -y
+apt install git  -y
 apt install wget  -y
 apt install tmux -y
 apt install rlwrap  -y
