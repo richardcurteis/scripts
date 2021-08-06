@@ -11,6 +11,8 @@ read -p "Copy pubkey to git... "
 apt install curl  -y
 apt install git  -y
 apt install wget  -y
+wget https://repo1.maven.org/maven2/org/python/jython-standalone/2.7.2/jython-standalone-2.7.2.jar
+mv jython-standalone-2.7.2.jar /opt/jython-standalone-2.7.2.jar
 apt install tmux -y
 apt install rlwrap  -y
 apt install netcat nc ncat  -y
