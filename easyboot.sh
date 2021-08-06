@@ -1,4 +1,4 @@
-apt-get update  -y && apt-get upgrade  -y
+apt-get update && apt-get upgrade  -y
 
 ssh-keygen -t ed25519 -C "richardcurteis@gmail.com"
 eval "$(ssh-agent -s)"
