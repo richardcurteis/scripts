@@ -1,9 +1,26 @@
-apt-get update && apt-get upgrade 
+apt-get update  -y && apt-get upgrade  -y
 
-apt install curl
-apt install wget
+ssh-keygen -t ed25519 -C "richardcurteis@gmail.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
 
-apt-get install -y libssl-dev libffi-dev python-dev build-essential
+cat ~/.ssh/id_ed25519.pub
+
+read -p "Copy pubkey to git... "
+
+apt install curl  -y
+apt install wget  -y
+apt install tmux -y
+apt install rlwrap  -y
+apt install netcat nc ncat  -y
+apt install python3-pip  -y
+apt install openjdk-8-jre  -y
+apt install flameshot  -y
+apt install zip  -y
+apt install virtualenv  -y
+apt-get install jq  -y
+
+apt-get install -y libssl-dev libffi-dev python-dev build-essential  -y
 
 wget https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
 rm -rf /usr/local/go && tar -C /usr/local -xzf go1.16.7.linux-amd64.tar.gz
@@ -11,17 +28,6 @@ export PATH=$PATH:/usr/local/go/bin
 
 service postgresql start
 msfdb init
-
-apt install tmux
-apt install rlwrap
-apt install netcat nc ncat
-apt install python3-pip
-apt install openjdk-8-jre
-apt install flameshot
-apt install zip
-apt install virtualenv
-apt-get install jq
-
 
 curl https://gist.githubusercontent.com/prachauthit/595cd3596267b303cc77fe0409c33530/raw/9de5070df1fb1adfc2f6db2b4966c516ec931700/ippsec-tmux -o .tmux.conf
 
@@ -37,9 +43,8 @@ dpkg -i code_1.59.0-1628120042_amd64.deb
 wget https://launchpad.net/~giuspen/+archive/ubuntu/ppa/+build/21797903/+files/cherrytree_0.99.39-4_amd64.deb
 dpkg -i  cherrytree_0.99.39-4_amd64.deb
 
-ssh-keygen -t ed25519 -C "richardcurteis@gmail.com"
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
+wget https://repo1.maven.org/maven2/org/python/jython-standalone/2.7.2/jython-standalone-2.7.2.jar
+mv jython-standalone-2.7.2.jar /opt/jython-standalone-2.7.2.jar
 
 git clone git@github.com:pwntester/ysoserial.net.git
 git clone git@github.com:frohoff/ysoserial.git
@@ -69,11 +74,14 @@ ln -s /opt/aquatone /usr/bin/aquatone
 
 apt-get update; \
   sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
+  sudo apt-get update -y && \
   sudo apt-get install -y dotnet-sdk-5.0
 
 
 pip3 install requests
 pip3 install flask
 
-chown -R `whoami`:`whoami` .
+chown -R rcurteis:rcurteis .
+chown -R rcurteis:rcurteis /opt
+
+apt autoremove -y
