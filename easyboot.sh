@@ -30,8 +30,8 @@ sudo apt-get install npm  -y
 
 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential  -y
 
-wget https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
-sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.16.7.linux-amd64.tar.gz
+wget https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.3.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 
 sudo service postgresql start
@@ -80,6 +80,7 @@ wget https://github.com/ffuf/ffuf/releases/download/v1.3.1/ffuf_1.3.1_linux_amd6
 gunzip ffuf_1.3.1_linux_amd64.tar.gz
 tar xvf ffuf_1.3.1_linux_amd64.tar
 mv ffuf_1.3.1_linux_amd64/ffuf /opt/ffuf
+sudo rm -rf /usr/bin/ffuf
 sudo ln -s /opt/ffuf /usr/bin/ffuf
 
 wget https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip
