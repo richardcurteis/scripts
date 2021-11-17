@@ -29,6 +29,7 @@ sudo apt-get install telnet  -y
 sudo apt-get install npm  -y
 
 sudo apt-get install -y libssl-dev libffi-dev python-dev build-essential  -y
+sudo apt-get install mingw-w64 binutils-mingw-w64 g++-mingw-w64 -y
 
 wget https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.17.3.linux-amd64.tar.gz
@@ -71,6 +72,13 @@ git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
 cd CrackMapExec
 poetry install
 cd ../../
+
+git clone git@github.com:BishopFox/sliver.git
+sudo mv sliver /opt
+cd /opt/sliver
+./go-assets.sh
+make
+cd /home/kali
 
 cp /usr/share/wordlists/rockyou.gz .
 gunzip gunzip rockyou.gz/rockyou.gz
